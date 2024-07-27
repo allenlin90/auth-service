@@ -7,7 +7,7 @@ import { SignupDTO } from '../auth/dtos/signup.dto';
 export class UsersService {
   constructor(private usersRepo: UsersRepository) {}
 
-  findOneUserByEmail(email: string) {
+  findOneByEmail(email: string) {
     return this.usersRepo.findOne({ email });
   }
 

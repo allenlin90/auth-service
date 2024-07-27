@@ -13,7 +13,7 @@ export class AuthService {
 
   async signup(signupData: SignupDTO) {
     const { email, password, name } = signupData;
-    const emailInUse = await this.usersService.findOneUserByEmail(email);
+    const emailInUse = await this.usersService.findOneByEmail(email);
 
     if (emailInUse) {
       throw new BadRequestException('email in use');
