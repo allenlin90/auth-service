@@ -5,4 +5,13 @@ import { SignupDto } from './dtos/Signup.dto';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('signup')
+  async signup(@Body() signupData: SignupDto) {
+    return this.authService.signup(signupData);
+  }
+
+  // TODO: POST login
+
+  // TODO: POST refresh token
 }
