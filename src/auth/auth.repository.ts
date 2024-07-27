@@ -18,6 +18,6 @@ export class AuthRepository {
       expiryDate,
     });
 
-    return refreshToken.token;
+    return refreshToken;
   }
 }
