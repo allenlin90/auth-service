@@ -7,20 +7,35 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { JwtModule } from '@nestjs/jwt';
+import config from './config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      load: [config],
+    }),
+    JwtModule.registerAsync({
+      global: true,
+      imports: [ConfigModule],
+      useFactory: async (config: ConfigService) => ({
+        secret: config.get<string>('jwt.secret'),
+        signOptions: {
+          expiresIn: config.get<string>('jwt.expiresIn'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
     ThrottlerModule.forRoot([{ limit: 10, ttl: 60 }]),
     AuthModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => {
-        return {
-          uri: configService.get<string>('MONGODB_URI'),
-          dbName: 'auth_service',
-        };
-      },
+      useFactory: async (config: ConfigService) => ({
+        uri: config.get<string>('database.connection'),
+        dbName: config.get<string>('database.name'),
+      }),
       inject: [ConfigService],
     }),
     UsersModule,

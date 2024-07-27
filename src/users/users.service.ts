@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { UsersRepository } from './users.repository';
-import { SignupDTO } from '../auth/dtos/signup.dto';
+import { SignupDto } from '../auth/dtos/signup.dto';
 
 @Injectable()
 export class UsersService {
@@ -11,7 +11,7 @@ export class UsersService {
     return this.usersRepo.findOne({ email });
   }
 
-  create({ name, email, password }: SignupDTO) {
+  create({ name, email, password }: SignupDto) {
     return this.usersRepo.create({ name, email, password });
   }
 }
