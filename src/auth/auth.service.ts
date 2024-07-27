@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { UsersRepository } from '../users/users.repository';
-import { SignupDto } from './dtos/Signup.dto';
+import { SignupDTO } from './dtos/signup.dto';
 import { BcryptService } from './bcrypt.service';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class AuthService {
     private bcryptService: BcryptService,
   ) {}
 
-  async signup(signupData: SignupDto) {
+  async signup(signupData: SignupDTO) {
     const { email, password, name } = signupData;
     const emailInUse = await this.usersRepo.findOne({ email });
 
