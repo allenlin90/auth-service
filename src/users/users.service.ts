@@ -11,7 +11,7 @@ export class UsersService {
     return this.usersRepo.findOne({ email });
   }
 
-  registerOneUser({ name, email, password }: SignupDTO) {
+  create({ name, email, password }: SignupDTO) {
     return this.usersRepo.create({ name, email, password });
   }
 }
