@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
-import { UsersRepository } from './users.repository';
+import { UsersRepository } from '../users/users.repository';
 import { SignupDto } from './dtos/Signup.dto';
 import { BcryptService } from './bcrypt.service';
 
