@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { UsersService } from '../users/users.service';
@@ -18,7 +23,7 @@ export class AuthService {
 
   async signup(signupData: SignupDto) {
     const { email, password, name } = signupData;
-    const emailInUse = await this.usersService.findOneByEmail(email);
+    const emailInUse = await this.usersService.findOne({ email });
 
     if (emailInUse) {
       throw new BadRequestException('email in use');
@@ -34,7 +39,7 @@ export class AuthService {
   }
 
   async login({ email, password }: { email: string; password: string }) {
-    const user = await this.usersService.findOneByEmail(email);
+    const user = await this.usersService.findOne({ email });
 
     if (!user) {
       throw new BadRequestException('invalid credentials');
@@ -60,5 +65,19 @@ export class AuthService {
     );
 
     return { accessToken, refreshToken };
+  }
+
+  async refreshToken(refreshToken: string) {
+    // this ensures the user can only login to one client at a time
+    const token = await this.authRepository.findOneAndDeleteRefreshToken({
+      token: refreshToken,
+      expiryDate: { $gte: new Date() },
+    });
+
+    if (!token) {
+      throw new UnauthorizedException('invalid refresh token');
+    }
+
+    return this.generateTokens(token.userId.toString());
   }
 }

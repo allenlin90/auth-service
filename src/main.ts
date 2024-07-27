@@ -21,6 +21,10 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
   app.use(cookieParser());
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
 
   await app.listen(PORT, () => {
     console.log(`Application running at port ${PORT}`);

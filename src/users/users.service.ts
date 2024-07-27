@@ -7,8 +7,8 @@ import { SignupDto } from '../auth/dtos/signup.dto';
 export class UsersService {
   constructor(private usersRepo: UsersRepository) {}
 
-  findOneByEmail(email: string) {
-    return this.usersRepo.findOne({ email });
+  findOne(...args: Parameters<UsersRepository['findOne']>) {
+    return this.usersRepo.findOne(...args);
   }
 
   create({ name, email, password }: SignupDto) {

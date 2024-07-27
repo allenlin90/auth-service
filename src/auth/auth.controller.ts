@@ -1,14 +1,26 @@
-import type { Response } from 'express';
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import type { Request, Response } from 'express';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
 import { UserDto } from '../users/dtos/user.dto';
 import { Serialize } from '../interceptors/serialize.interceptor';
+import type { RefreshToken } from './schemas/refresh-token.schema';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private config: ConfigService,
+  ) {}
 
   @Serialize(UserDto)
   @Post('signup')
@@ -24,13 +36,36 @@ export class AuthController {
     const { accessToken, refreshToken } =
       await this.authService.login(credentials);
 
-    res.cookie('refreshToken', refreshToken.token, {
-      httpOnly: true,
-      expires: refreshToken.expiryDate,
-    });
+    this.setRefreshTokenCookie(res, refreshToken);
 
     return { accessToken };
   }
 
-  // TODO: POST refresh token
+  @Post('refresh')
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { refreshToken: token } = req.cookies;
+
+    if (!token) {
+      new UnauthorizedException('invalid refresh token');
+    }
+
+    const { accessToken, refreshToken } =
+      await this.authService.refreshToken(token);
+
+    this.setRefreshTokenCookie(res, refreshToken);
+
+    return { accessToken };
+  }
+
+  private setRefreshTokenCookie(res: Response, refreshToken: RefreshToken) {
+    res.cookie('refreshToken', refreshToken.token, {
+      httpOnly: true,
+      // sameSite: 'none', // required when client is on a different domain
+      expires: refreshToken.expiryDate,
+      secure: this.config.get('IS_PRODUCTION'),
+    });
+  }
 }

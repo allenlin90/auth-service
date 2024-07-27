@@ -20,4 +20,10 @@ export class AuthRepository {
 
     return refreshToken;
   }
+
+  async findOneAndDeleteRefreshToken(
+    ...args: Parameters<(typeof Model<RefreshToken>)['findOneAndDelete']>
+  ) {
+    return this.RefreshTokenModel.findOneAndDelete(...args);
+  }
 }
