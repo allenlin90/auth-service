@@ -11,7 +11,9 @@ export class UsersRepository {
     return this.UserModal.findOne(...args);
   }
 
-  async create(...args: Parameters<Model<User>['create']>) {
-    return this.UserModal.create(...args);
+  async create(...args: ConstructorParameters<Model<User>>) {
+    const user = new this.UserModal(...args);
+
+    return await user.save();
   }
 }
