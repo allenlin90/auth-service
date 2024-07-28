@@ -3,9 +3,11 @@ import {
   Body,
   Controller,
   Post,
+  Put,
   Req,
   Res,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ConfigKeys } from '../config';
@@ -15,6 +17,8 @@ import { LoginDto } from './dtos/login.dto';
 import { UserDto } from '../users/dtos/user.dto';
 import { Serialize } from '../interceptors/serialize.interceptor';
 import type { RefreshToken } from './schemas/refresh-token.schema';
+import { ChangePasswordDto } from './dtos/change-password.dto';
+import { AuthGuard } from '../guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -60,6 +64,17 @@ export class AuthController {
 
     return { accessToken };
   }
+
+  @Serialize(UserDto)
+  @UseGuards(AuthGuard)
+  @Put('/change_password')
+  async changePassword(@Body() data: ChangePasswordDto, @Req() req: Request) {
+    return this.authService.changePassword(req.userId, data);
+  }
+
+  // TODO: POST Forgot password
+
+  // TODO: POST Reset password
 
   private setRefreshTokenCookie(res: Response, refreshToken: RefreshToken) {
     res.cookie('refreshToken', refreshToken.token, {

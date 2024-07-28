@@ -11,6 +11,10 @@ export class UsersService {
     return this.usersRepo.findOne(...args);
   }
 
+  findOneAndUpdate(...args: Parameters<UsersRepository['findOneAndUpdate']>) {
+    return this.usersRepo.findOneAndUpdate(...args);
+  }
+
   create({ name, email, password }: SignupDto) {
     return this.usersRepo.create({ name, email, password });
   }

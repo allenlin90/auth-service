@@ -11,6 +11,14 @@ export class UsersRepository {
     return this.UserModal.findOne(...args);
   }
 
+  async findOneAndUpdate(...args: Parameters<Model<User>['findOneAndUpdate']>) {
+    const user = await this.UserModal.findOneAndUpdate(...args);
+
+    await user.save();
+
+    return user;
+  }
+
   async create(...args: ConstructorParameters<Model<User>>) {
     const user = new this.UserModal(...args);
 
