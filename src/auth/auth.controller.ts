@@ -69,7 +69,7 @@ export class AuthController {
     return { accessToken };
   }
 
-  @HttpCode(204)
+  @HttpCode(200)
   @Serialize(UserDto)
   @UseGuards(AuthGuard)
   @Put('/change-password')
@@ -82,7 +82,7 @@ export class AuthController {
     return this.authService.forgotPassword(email);
   }
 
-  @HttpCode(204)
+  @HttpCode(200)
   @Serialize(UserDto)
   @Post('reset-password')
   async resetPassword(@Body() data: ResetPasswordDto) {
