@@ -68,7 +68,7 @@ export class AuthService {
   }
 
   async refreshToken(refreshToken: string) {
-    // this ensures the user can only login to one client at a time
+    // this ensures the user can only fresh access token of one client at a time
     const token = await this.authRepository.findOneAndDeleteRefreshToken({
       token: refreshToken,
       expiryDate: { $gte: new Date() },
