@@ -4,11 +4,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+
+import config, { ConfigKeys } from './config';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import config, { ConfigKeys } from './config';
 import { EmailModule } from './email/email.module';
 
 @Module({
@@ -30,7 +30,6 @@ import { EmailModule } from './email/email.module';
       inject: [ConfigService],
     }),
     ThrottlerModule.forRoot([{ limit: 10, ttl: 60 }]),
-    AuthModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (config: ConfigService) => ({
@@ -39,12 +38,12 @@ import { EmailModule } from './email/email.module';
       }),
       inject: [ConfigService],
     }),
+    AuthModule,
     UsersModule,
     EmailModule,
   ],
   controllers: [AppController],
   providers: [
-    AppService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
