@@ -1,5 +1,3 @@
-## Description
-
 ## Installation
 
 ```bash
@@ -31,3 +29,15 @@ $ yarn run test:e2e
 # test coverage
 $ yarn run test:cov
 ```
+
+---
+
+# Features
+
+## Authentication
+
+### User login and refresh token
+
+- The current authentication flow allows the same user logins in on multiple devices to generate multiple refresh token.
+- Every time the refresh token is used to refresh an access token, the api will destroy the given one and generate a new one.
+- The business logic can be updated at `AuthService#refreshToken`
