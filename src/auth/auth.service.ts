@@ -10,6 +10,7 @@ import { UsersService } from '../users/users.service';
 import { SignupDto } from './dtos/signup.dto';
 import { EncryptionService } from './encryption.service';
 import { AuthRepository } from './auth.repository';
+import ProviderKeys from '../constants/provider';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,7 @@ export class AuthService {
     private encryptionService: EncryptionService,
     private jwtService: JwtService,
     private authRepository: AuthRepository,
-    @Inject('UUIDV4') private uuidv4: () => string,
+    @Inject(ProviderKeys.UUIDV4) private uuidv4: () => string,
   ) {}
 
   async signup(signupData: SignupDto) {

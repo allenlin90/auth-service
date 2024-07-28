@@ -1,15 +1,16 @@
+import { v4 } from 'uuid';
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { EncryptionService } from './encryption.service';
-import { MongooseModule } from '@nestjs/mongoose';
 import {
   RefreshToken,
   RefreshTokenSchema,
 } from './schemas/refresh-token.schema';
 import { AuthRepository } from './auth.repository';
-import { v4 } from 'uuid';
+import ProviderKeys from '../constants/provider';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { v4 } from 'uuid';
     AuthRepository,
     EncryptionService,
     {
-      provide: 'UUIDV4',
+      provide: ProviderKeys.UUIDV4,
       useValue: v4,
     },
   ],
