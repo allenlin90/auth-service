@@ -9,25 +9,41 @@ export enum ConfigKeys {
   RESET_TOKEN_EXPIRES_IN = 'resetToken.expiresIn',
   DB_CONNECTION = 'database.connection',
   DB_NAME = 'database.name',
+  EMAIL_SERVICE_OPTIONS = 'emailService.options',
 }
 
-export default () => ({
-  PORT: parseInt(process.env.PORT, 10) || 3000,
-  NODE_ENV: process.env.NODE_ENV,
-  RESET_SERVICE_URL: process.env.RESET_SERVICE_URL,
-  IS_PRODUCTION: process.env.NODE_ENV === 'production',
-  jwt: {
-    secret: process.env.JWT_SECRET,
-    expiresIn: '1h',
-  },
-  refreshToken: {
-    expiresIn: 30, // days
-  },
-  resetToken: {
-    expiresIn: 1, // hour
-  },
-  database: {
-    connection: process.env.MONGODB_URI,
-    name: 'auth_service',
-  },
-});
+export default () => {
+  const emailServiceOptions = {
+    host: process.env.EMAIL_HOST,
+    port: parseInt(process.env.EMAIL_PORT, 10),
+    secure: process.env.NODE_ENV === 'production',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  };
+
+  return {
+    PORT: parseInt(process.env.PORT, 10) || 3000,
+    NODE_ENV: process.env.NODE_ENV,
+    RESET_SERVICE_URL: process.env.RESET_SERVICE_URL,
+    IS_PRODUCTION: process.env.NODE_ENV === 'production',
+    jwt: {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '1h',
+    },
+    refreshToken: {
+      expiresIn: 30, // days
+    },
+    resetToken: {
+      expiresIn: 1, // hour
+    },
+    database: {
+      connection: process.env.MONGODB_URI,
+      name: 'auth_service',
+    },
+    emailService: {
+      options: emailServiceOptions,
+    },
+  };
+};
