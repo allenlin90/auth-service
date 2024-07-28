@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { JwtModule } from '@nestjs/jwt';
-import config from './config';
+import config, { ConfigKeys } from './config';
 
 @Module({
   imports: [
@@ -21,9 +21,9 @@ import config from './config';
       global: true,
       imports: [ConfigModule],
       useFactory: async (config: ConfigService) => ({
-        secret: config.get<string>('jwt.secret'),
+        secret: config.get<string>(ConfigKeys.JWT_SECRET),
         signOptions: {
-          expiresIn: config.get<string>('jwt.expiresIn'),
+          expiresIn: config.get<string>(ConfigKeys.JWT_EXPIRES_IN),
         },
       }),
       inject: [ConfigService],
@@ -33,8 +33,8 @@ import config from './config';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (config: ConfigService) => ({
-        uri: config.get<string>('database.connection'),
-        dbName: config.get<string>('database.name'),
+        uri: config.get<string>(ConfigKeys.DB_CONNECTION),
+        dbName: config.get<string>(ConfigKeys.DB_NAME),
       }),
       inject: [ConfigService],
     }),

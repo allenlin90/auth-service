@@ -1,5 +1,6 @@
 import { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
+import { ConfigKeys } from '../config';
 import { InjectModel } from '@nestjs/mongoose';
 import { RefreshToken } from './schemas/refresh-token.schema';
 
@@ -12,7 +13,9 @@ export class AuthRepository {
 
   async createRefreshToken(userId: string, token: string) {
     const expiryDate = new Date();
-    const expiresIn = this.config.get<number>('refreshToken.expiresIn');
+    const expiresIn = this.config.get<number>(
+      ConfigKeys.REFRESH_TOKEN_EXPIRES_IN,
+    );
     expiryDate.setDate(expiryDate.getDate() + expiresIn);
 
     const refreshToken = await this.RefreshTokenModel.create({

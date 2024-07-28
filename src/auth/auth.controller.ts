@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ConfigKeys } from '../config';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
@@ -65,7 +66,7 @@ export class AuthController {
       httpOnly: true,
       // sameSite: 'none', // required when client is on a different domain
       expires: refreshToken.expiryDate,
-      secure: this.config.get('IS_PRODUCTION'),
+      secure: this.config.get(ConfigKeys.IS_PRODUCTION),
     });
   }
 }
