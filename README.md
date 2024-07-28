@@ -17,6 +17,11 @@ $ yarn run start:dev
 $ yarn run start:prod
 ```
 
+## Running depending services
+
+- MongoDB
+- MailCatcher
+
 ## Test
 
 ```bash
@@ -49,3 +54,8 @@ $ yarn run test:cov
 ### Authentication Guard
 
 - Guard endpoints require HTTP request with header `Authorization: Bearer $ACCESS_JWT_TOKEN`.
+
+### Forgot password
+
+- [MailCatcher](https://mailcatcher.me/) is used for local dev and check email output
+- By default setup, email sent can be checked at `http://localhost:1080` from mail catcher web UI.
