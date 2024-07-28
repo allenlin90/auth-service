@@ -10,11 +10,12 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
 import { ConfigKeys } from '../config';
-import { UsersService } from '../users/users.service';
-import { SignupDto } from './dtos/signup.dto';
-import { EncryptionService } from './encryption.service';
-import { AuthRepository } from './auth.repository';
 import ProviderKeys from '../constants/provider';
+import { UsersService } from '../users/users.service';
+import { EncryptionService } from './encryption.service';
+import { EmailService } from 'src/email/email.service';
+import { AuthRepository } from './auth.repository';
+import { SignupDto } from './dtos/signup.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
 
 @Injectable()
@@ -25,6 +26,7 @@ export class AuthService {
     private encryptionService: EncryptionService,
     private jwtService: JwtService,
     private authRepository: AuthRepository,
+    private emailService: EmailService,
     @Inject(ProviderKeys.UUID) private uuid: typeof randomUUID,
     @Inject(ProviderKeys.UUIDV4) private uuidv4: typeof v4,
   ) {}
@@ -121,12 +123,13 @@ export class AuthService {
     if (user) {
       const resetPasswordLink = await this.generateResetLink(user.id);
 
-      // TODO: send the link to user by email
+      await this.emailService.sendResetPasswordEmail(
+        user.email,
+        resetPasswordLink,
+      );
     }
 
-    return {
-      message: 'forgot password request proceeded',
-    };
+    return { message: 'OK' };
   }
 
   private async generateTokens(userId: string) {

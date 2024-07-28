@@ -3,11 +3,13 @@ import { randomUUID } from 'crypto';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import ProviderKeys from '../constants/provider';
+import { UsersModule } from '../users/users.module';
+import { EmailModule } from 'src/email/email.module';
+
+import { EncryptionService } from './encryption.service';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AuthRepository } from './auth.repository';
-import { UsersModule } from '../users/users.module';
-import { EncryptionService } from './encryption.service';
 import {
   RefreshToken,
   RefreshTokenSchema,
@@ -27,6 +29,7 @@ import { ResetToken, ResetTokenSchema } from './schemas/reset-token.schema';
       },
     ]),
     UsersModule,
+    EmailModule,
   ],
   controllers: [AuthController],
   providers: [
