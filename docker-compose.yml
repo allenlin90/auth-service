@@ -3,7 +3,7 @@ services:
   database:
     image: mongo
     restart: always
-    container_name: mongodb
+    container_name: mongodb_auth_service
     ports:
       - 27017:27017
     environment:
@@ -11,5 +11,13 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
       - mongo-data:/data/db
+  mailcatcher:
+    image: schickling/mailcatcher
+    container_name: mailcatcher_auth_service
+    restart: on-failure
+    ports:
+      - '1080:1080'
+      - '1025:1025'
+
 volumes:
   mongo-data:
