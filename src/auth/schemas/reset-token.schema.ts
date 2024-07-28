@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 
-export type RefreshTokenDocument = HydratedDocument<RefreshToken>;
+export type ResetTokenDocument = HydratedDocument<ResetToken>;
 
 @Schema({ versionKey: false, timestamps: true })
-export class RefreshToken {
+export class ResetToken {
   @Prop({ required: true })
   token: string;
 
@@ -15,4 +15,4 @@ export class RefreshToken {
   expiryDate: Date;
 }
 
-export const RefreshTokenSchema = SchemaFactory.createForClass(RefreshToken);
+export const ResetTokenSchema = SchemaFactory.createForClass(ResetToken);

@@ -1,3 +1,5 @@
+import type { v4 } from 'uuid';
+import type { randomUUID } from 'crypto';
 import {
   BadRequestException,
   Inject,
@@ -5,7 +7,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
+import { ConfigKeys } from '../config';
 import { UsersService } from '../users/users.service';
 import { SignupDto } from './dtos/signup.dto';
 import { EncryptionService } from './encryption.service';
@@ -16,11 +20,13 @@ import { ChangePasswordDto } from './dtos/change-password.dto';
 @Injectable()
 export class AuthService {
   constructor(
+    private config: ConfigService,
     private usersService: UsersService,
     private encryptionService: EncryptionService,
     private jwtService: JwtService,
     private authRepository: AuthRepository,
-    @Inject(ProviderKeys.UUIDV4) private uuidv4: () => string,
+    @Inject(ProviderKeys.UUID) private uuid: typeof randomUUID,
+    @Inject(ProviderKeys.UUIDV4) private uuidv4: typeof v4,
   ) {}
 
   async signup(signupData: SignupDto) {
@@ -57,16 +63,6 @@ export class AuthService {
     }
 
     return this.generateTokens(user.id);
-  }
-
-  async generateTokens(userId: string) {
-    const accessToken = this.jwtService.sign({ userId });
-    const refreshToken = await this.authRepository.createRefreshToken(
-      userId,
-      this.uuidv4(),
-    );
-
-    return { accessToken, refreshToken };
   }
 
   async refreshToken(refreshToken: string) {
@@ -117,6 +113,67 @@ export class AuthService {
     );
 
     return user;
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.usersService.findOne({ email });
+
+    if (user) {
+      const resetPasswordLink = await this.generateResetLink(user.id);
+
+      // TODO: send the link to user by email
+    }
+
+    return {
+      message: 'forgot password request proceeded',
+    };
+  }
+
+  private async generateTokens(userId: string) {
+    const accessToken = this.jwtService.sign({ userId });
+
+    const refreshToken = await this.generateRefreshToken(userId);
+
+    return { accessToken, refreshToken };
+  }
+
+  // to refresh the access token
+  private async generateRefreshToken(userId: string) {
+    const expiryDate = new Date();
+    const expiresIn = this.config.get<number>(
+      ConfigKeys.REFRESH_TOKEN_EXPIRES_IN,
+    );
+    expiryDate.setDate(expiryDate.getDate() + expiresIn);
+
+    const refreshToken = await this.authRepository.createRefreshToken({
+      userId,
+      token: this.uuidv4(), // TODO: generate uuid with prefix for purpose
+      expiryDate,
+    });
+
+    return refreshToken;
+  }
+
+  // to generate a for resetting password
+  private async generateResetToken(userId: string) {
+    const expiryDate = new Date();
+    const expiresIn = this.config.get<number>(
+      ConfigKeys.RESET_TOKEN_EXPIRES_IN,
+    );
+    expiryDate.setHours(expiryDate.getHours() + expiresIn);
+
+    return await this.authRepository.createResetToken({
+      userId,
+      token: this.uuid(), // TODO: generate uuid with prefix for purpose
+      expiryDate,
+    });
+  }
+
+  // to generate a link to reset password
+  private async generateResetLink(userId: string) {
+    const { token } = await this.generateResetToken(userId);
+
+    return `${this.config.get(ConfigKeys.RESET_SERVICE_URL)}?token=${token}`;
   }
 
   private async hashPassword(password: string) {

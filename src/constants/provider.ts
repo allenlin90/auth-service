@@ -1,4 +1,5 @@
 export enum ProviderKeys {
+  UUID = 'UUID',
   UUIDV4 = 'UUIDV4',
 }
 

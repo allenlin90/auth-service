@@ -1,4 +1,6 @@
 import type { Request, Response } from 'express';
+import type { RefreshToken } from './schemas/refresh-token.schema';
+
 import {
   Body,
   Controller,
@@ -11,14 +13,14 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ConfigKeys } from '../config';
+import { AuthGuard } from '../guards/auth.guard';
+import { Serialize } from '../interceptors/serialize.interceptor';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
 import { UserDto } from '../users/dtos/user.dto';
-import { Serialize } from '../interceptors/serialize.interceptor';
-import type { RefreshToken } from './schemas/refresh-token.schema';
 import { ChangePasswordDto } from './dtos/change-password.dto';
-import { AuthGuard } from '../guards/auth.guard';
+import { forgetPasswordDto } from './dtos/forget-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -67,12 +69,16 @@ export class AuthController {
 
   @Serialize(UserDto)
   @UseGuards(AuthGuard)
-  @Put('/change_password')
+  @Put('/change-password')
   async changePassword(@Body() data: ChangePasswordDto, @Req() req: Request) {
     return this.authService.changePassword(req.userId, data);
   }
 
   // TODO: POST Forgot password
+  @Post('forgot-password')
+  async forgotPassword(@Body() { email }: forgetPasswordDto) {
+    return this.authService.forgotPassword(email);
+  }
 
   // TODO: POST Reset password
 
