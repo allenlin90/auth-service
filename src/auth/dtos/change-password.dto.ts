@@ -1,4 +1,5 @@
 import { IsString, Matches, MinLength } from 'class-validator';
+import { Match } from '../../decorators/match.decorator';
 
 export class ChangePasswordDto {
   @IsString()
@@ -12,5 +13,6 @@ export class ChangePasswordDto {
   newPassword: string;
 
   @IsString()
+  @Match('newPassword', { message: 'passwords do not match' })
   confirmNewPassword: string;
 }
