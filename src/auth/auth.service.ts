@@ -17,6 +17,7 @@ import { EmailService } from 'src/email/email.service';
 import { AuthRepository } from './auth.repository';
 import { SignupDto } from './dtos/signup.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -123,6 +124,26 @@ export class AuthService {
     }
 
     return { message: 'OK' };
+  }
+
+  async resetPassword({ token, password }: ResetPasswordDto) {
+    const resetToken = await this.authRepository.findOneAndDeleteResetToken({
+      token,
+      expiryDate: { $gte: new Date() },
+    });
+
+    if (!resetToken) {
+      throw new BadRequestException('invalid token');
+    }
+
+    const hashedPassword = await this.hashPassword(password);
+
+    const user = await this.usersService.findOneAndUpdate(
+      { _id: resetToken.userId },
+      { $set: { password: hashedPassword } },
+    );
+
+    return user;
   }
 
   private async generateTokens(userId: string) {

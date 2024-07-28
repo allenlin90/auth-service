@@ -26,4 +26,10 @@ export class AuthRepository {
   ) {
     return this.RefreshTokenModel.findOneAndDelete(...args);
   }
+
+  async findOneAndDeleteResetToken(
+    ...args: Parameters<(typeof Model<ResetToken>)['findOneAndDelete']>
+  ) {
+    return this.ResetTokenModel.findOneAndDelete(...args);
+  }
 }

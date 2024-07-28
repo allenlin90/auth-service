@@ -4,6 +4,7 @@ import type { RefreshToken } from './schemas/refresh-token.schema';
 import {
   Body,
   Controller,
+  HttpCode,
   Post,
   Put,
   Req,
@@ -21,6 +22,7 @@ import { LoginDto } from './dtos/login.dto';
 import { UserDto } from '../users/dtos/user.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
 import { ForgetPasswordDto } from './dtos/forget-password.dto';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -67,6 +69,7 @@ export class AuthController {
     return { accessToken };
   }
 
+  @HttpCode(204)
   @Serialize(UserDto)
   @UseGuards(AuthGuard)
   @Put('/change-password')
@@ -74,12 +77,17 @@ export class AuthController {
     return this.authService.changePassword(req.userId, data);
   }
 
-    @Post('forgot-password')
+  @Post('forgot-password')
   async forgotPassword(@Body() { email }: ForgetPasswordDto) {
     return this.authService.forgotPassword(email);
   }
 
-  // TODO: POST Reset password
+  @HttpCode(204)
+  @Serialize(UserDto)
+  @Post('reset-password')
+  async resetPassword(@Body() data: ResetPasswordDto) {
+    return this.authService.resetPassword(data);
+  }
 
   private setRefreshTokenCookie(res: Response, refreshToken: RefreshToken) {
     res.cookie('refreshToken', refreshToken.token, {
