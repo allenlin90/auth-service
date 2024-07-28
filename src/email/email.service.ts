@@ -14,6 +14,7 @@ export class EmailService {
     private emailService: nodemailer.Transporter<SMTPTransport.SentMessageInfo>,
   ) {}
 
+  // TODO: refine email subject and content
   async sendResetPasswordEmail(toEmail: string, resetToken: string) {
     const resetLink = this.generateResetLink(resetToken);
     // TODO: offload email sending to a queue
