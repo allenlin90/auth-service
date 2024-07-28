@@ -20,7 +20,7 @@ export class EmailService {
     this.emailService.sendMail({
       from: this.config.get(ConfigKeys.EMAIL_FROM),
       to: toEmail,
-      subject: 'Hello World',
+      subject: 'Reset Password',
       html: `<a href="${resetLink}">Reset Password</a>`,
     });
   }
