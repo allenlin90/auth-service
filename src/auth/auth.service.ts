@@ -121,12 +121,9 @@ export class AuthService {
     const user = await this.usersService.findOne({ email });
 
     if (user) {
-      const resetPasswordLink = await this.generateResetLink(user.id);
+      const { token: resetToken } = await this.generateResetToken(user.id);
 
-      await this.emailService.sendResetPasswordEmail(
-        user.email,
-        resetPasswordLink,
-      );
+      await this.emailService.sendResetPasswordEmail(user.email, resetToken);
     }
 
     return { message: 'OK' };
@@ -170,13 +167,6 @@ export class AuthService {
       token: this.uuid(), // TODO: generate uuid with prefix for purpose
       expiryDate,
     });
-  }
-
-  // to generate a link to reset password
-  private async generateResetLink(userId: string) {
-    const { token } = await this.generateResetToken(userId);
-
-    return `${this.config.get(ConfigKeys.RESET_SERVICE_URL)}?token=${token}`;
   }
 
   private async hashPassword(password: string) {
