@@ -6,6 +6,9 @@ export default () => ({
     secret: process.env.JWT_SECRET,
     expiresIn: '1h',
   },
+  refreshToken: {
+    expiresIn: 30, // days
+  },
   database: {
     connection: process.env.MONGODB_URI,
     name: 'auth_service',
