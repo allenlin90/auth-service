@@ -10,6 +10,7 @@ export enum ConfigKeys {
   DB_CONNECTION = 'database.connection',
   DB_NAME = 'database.name',
   EMAIL_SERVICE_OPTIONS = 'emailService.options',
+  EMAIL_FROM = 'emailService.from',
 }
 
 export default () => {
@@ -43,6 +44,7 @@ export default () => {
       name: 'auth_service',
     },
     emailService: {
+      from: process.env.EMAIL_FROM,
       options: emailServiceOptions,
     },
   };

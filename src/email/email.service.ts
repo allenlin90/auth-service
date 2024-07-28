@@ -1,15 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import * as nodemailer from 'nodemailer';
+import type SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { ConfigKeys } from '../config';
+import ProviderKeys from '../constants/provider';
 
 @Injectable()
 export class EmailService {
-  constructor(private config: ConfigService) {}
+  constructor(
+    private config: ConfigService,
+    @Inject(ProviderKeys.EMAIL_SERVICE)
+    private emailService: nodemailer.Transporter<SMTPTransport.SentMessageInfo>,
+  ) {}
 
   async sendResetPasswordEmail(toEmail: string, resetToken: string) {
     const resetLink = this.generateResetLink(resetToken);
     // TODO: offload email sending to a queue
+    this.emailService.sendMail({
+      from: this.config.get(ConfigKeys.EMAIL_FROM),
+      to: toEmail,
+      subject: 'Hello World',
+      html: `<a href="${resetLink}">Reset Password</a>`,
+    });
   }
 
   // to generate a link to reset password
