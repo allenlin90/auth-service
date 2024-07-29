@@ -4,16 +4,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { BullModule } from '@nestjs/bullmq';
-import { BullBoardModule } from '@bull-board/nestjs';
-import { ExpressAdapter } from '@bull-board/express';
 
 import config, { ConfigKeys } from './config';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { EmailModule } from './email/email.module';
-import { QUEUE_ROUTE } from './constants';
+import { BullMQModule } from './bullmq/bullmq.module';
 
 @Module({
   imports: [
@@ -21,21 +18,6 @@ import { QUEUE_ROUTE } from './constants';
       isGlobal: true,
       cache: true,
       load: [config],
-    }),
-    BullModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (config: ConfigService) => ({
-        connection: {
-          host: config.get<string>(ConfigKeys.REDIS_HOST),
-          port: config.get<number>(ConfigKeys.REDIS_PORT),
-        },
-      }),
-      inject: [ConfigService],
-    }),
-    // TODO: apply auth guard
-    BullBoardModule.forRoot({
-      route: QUEUE_ROUTE,
-      adapter: ExpressAdapter,
     }),
     JwtModule.registerAsync({
       global: true,
@@ -48,7 +30,6 @@ import { QUEUE_ROUTE } from './constants';
       }),
       inject: [ConfigService],
     }),
-    ThrottlerModule.forRoot([{ limit: 10, ttl: 60 }]),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (config: ConfigService) => ({
@@ -57,6 +38,8 @@ import { QUEUE_ROUTE } from './constants';
       }),
       inject: [ConfigService],
     }),
+    ThrottlerModule.forRoot([{ limit: 10, ttl: 60 }]),
+    BullMQModule,
     AuthModule,
     UsersModule,
     EmailModule,

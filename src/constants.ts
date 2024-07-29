@@ -3,7 +3,7 @@ export enum ProviderKeys {
   EMAIL_SERVICE = 'EMAIL_SERVICE',
 }
 
-export const QUEUE_ROUTE = '/queues';
+export const QUEUE_ROUTE = '/admin/queues';
 
 export const EMAIL_QUEUE_NAME = 'email';
 
