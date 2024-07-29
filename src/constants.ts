@@ -1,6 +1,4 @@
 export enum ProviderKeys {
-  UUID = 'UUID',
-  UUIDV4 = 'UUIDV4',
   NANO_ID = 'NANO_ID',
   EMAIL_SERVICE = 'EMAIL_SERVICE',
 }
