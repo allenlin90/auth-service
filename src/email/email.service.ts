@@ -1,33 +1,22 @@
-import * as nodemailer from 'nodemailer';
-import type SMTPTransport from 'nodemailer/lib/smtp-transport';
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Queue } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Injectable } from '@nestjs/common';
 
-import { ConfigKeys } from '../config';
-import ProviderKeys from '../constants/provider';
+import { EMAIL_QUEUE_NAME, EmailTasks } from '../constants';
 
 @Injectable()
 export class EmailService {
   constructor(
-    private config: ConfigService,
-    @Inject(ProviderKeys.EMAIL_SERVICE)
-    private emailService: nodemailer.Transporter<SMTPTransport.SentMessageInfo>,
+    @InjectQueue(EMAIL_QUEUE_NAME)
+    private emailQueue: Queue<Record<string, any>>,
   ) {}
 
-  // TODO: refine email subject and content
-  async sendResetPasswordEmail(toEmail: string, resetToken: string) {
-    const resetLink = this.generateResetLink(resetToken);
-    // TODO: offload email sending to a queue
-    this.emailService.sendMail({
-      from: this.config.get(ConfigKeys.EMAIL_FROM),
-      to: toEmail,
-      subject: 'Reset Password',
-      html: `<a href="${resetLink}">Reset Password</a>`,
+  async sendResetPasswordEmail(toEmail: string, userId: string) {
+    const job = await this.emailQueue.add(EmailTasks.SEND_RESET_MAIL, {
+      toEmail,
+      userId,
     });
-  }
 
-  // to generate a link to reset password
-  private generateResetLink(token: string) {
-    return `${this.config.get(ConfigKeys.RESET_SERVICE_URL)}?token=${token}`;
+    return job.id;
   }
 }

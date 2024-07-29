@@ -39,6 +39,10 @@ $ yarn run test:cov
 
 # Features
 
+## Bull MQ
+
+- route: `/queues`
+
 ## Authentication
 
 - AccessToken (1 hour)
@@ -59,3 +63,7 @@ $ yarn run test:cov
 
 - [MailCatcher](https://mailcatcher.me/) is used for local dev and check email output
 - By default setup, email sent can be checked at `http://localhost:1080` from mail catcher web UI.
+
+### Queues
+
+- A email sending job will be dispatched to BullMQ process.

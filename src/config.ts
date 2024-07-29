@@ -9,6 +9,8 @@ export enum ConfigKeys {
   RESET_TOKEN_EXPIRES_IN = 'resetToken.expiresIn',
   DB_CONNECTION = 'database.connection',
   DB_NAME = 'database.name',
+  REDIS_HOST = 'redis.host',
+  REDIS_PORT = 'redis.port',
   EMAIL_SERVICE_OPTIONS = 'emailService.options',
   EMAIL_FROM = 'emailService.from',
 }
@@ -42,6 +44,10 @@ export default () => {
     database: {
       connection: process.env.MONGODB_URI,
       name: 'auth_service',
+    },
+    redis: {
+      host: process.env.REDIS_HOST,
+      port: parseInt(process.env.REDIS_PORT, 10),
     },
     emailService: {
       from: process.env.EMAIL_FROM,

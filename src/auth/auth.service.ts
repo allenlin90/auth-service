@@ -10,7 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
 import { ConfigKeys } from '../config';
-import ProviderKeys from '../constants/provider';
+import { ProviderKeys } from '../constants';
 import { UsersService } from '../users/users.service';
 import { EncryptionService } from './encryption.service';
 import { EmailService } from 'src/email/email.service';
@@ -118,9 +118,7 @@ export class AuthService {
     const user = await this.usersService.findOne({ email });
 
     if (user) {
-      const { token: resetToken } = await this.generateResetToken(user.id);
-
-      await this.emailService.sendResetPasswordEmail(user.email, resetToken);
+      await this.emailService.sendResetPasswordEmail(user.email, user.id);
     }
 
     return { message: 'OK' };
@@ -146,16 +144,8 @@ export class AuthService {
     return user;
   }
 
-  private async generateTokens(userId: string) {
-    const accessToken = this.jwtService.sign({ userId });
-
-    const refreshToken = await this.generateRefreshToken(userId);
-
-    return { accessToken, refreshToken };
-  }
-
   // to refresh the access token
-  private async generateRefreshToken(userId: string) {
+  async generateRefreshToken(userId: string) {
     const expiryDate = new Date();
     const expiresIn = this.config.get<number>(
       ConfigKeys.REFRESH_TOKEN_EXPIRES_IN,
@@ -172,7 +162,7 @@ export class AuthService {
   }
 
   // to generate a for resetting password
-  private async generateResetToken(userId: string) {
+  async generateResetToken(userId: string) {
     const expiryDate = new Date();
     const expiresIn = this.config.get<number>(
       ConfigKeys.RESET_TOKEN_EXPIRES_IN,
@@ -184,6 +174,14 @@ export class AuthService {
       token: this.uuid(), // TODO: generate uuid with prefix for purpose
       expiryDate,
     });
+  }
+
+  private async generateTokens(userId: string) {
+    const accessToken = this.jwtService.sign({ userId });
+
+    const refreshToken = await this.generateRefreshToken(userId);
+
+    return { accessToken, refreshToken };
   }
 
   private async hashPassword(password: string) {

@@ -1,8 +1,8 @@
 import { v4 } from 'uuid';
 import { randomUUID } from 'crypto';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import ProviderKeys from '../constants/provider';
+import { ProviderKeys } from '../constants';
 import { UsersModule } from '../users/users.module';
 import { EmailModule } from 'src/email/email.module';
 
@@ -29,7 +29,7 @@ import { ResetToken, ResetTokenSchema } from './schemas/reset-token.schema';
       },
     ]),
     UsersModule,
-    EmailModule,
+    forwardRef(() => EmailModule),
   ],
   controllers: [AuthController],
   providers: [
@@ -45,5 +45,6 @@ import { ResetToken, ResetTokenSchema } from './schemas/reset-token.schema';
       useValue: randomUUID,
     },
   ],
+  exports: [AuthService],
 })
 export class AuthModule {}

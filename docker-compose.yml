@@ -11,13 +11,19 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
       - mongo-data:/data/db
+  redis:
+    image: redis:alpine
+    container_name: redis_auth_service
+    restart: always
+    ports:
+      - 6379:6379
   mailcatcher:
     image: schickling/mailcatcher
     container_name: mailcatcher_auth_service
     restart: on-failure
     ports:
-      - '1080:1080'
-      - '1025:1025'
+      - 1080:1080
+      - 1025:1025
 
 volumes:
   mongo-data:
