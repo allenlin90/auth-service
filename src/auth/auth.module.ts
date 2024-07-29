@@ -1,5 +1,3 @@
-import { v4 } from 'uuid';
-import { randomUUID } from 'crypto';
 import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProviderKeys } from '../constants';
@@ -15,6 +13,7 @@ import {
   RefreshTokenSchema,
 } from './schemas/refresh-token.schema';
 import { ResetToken, ResetTokenSchema } from './schemas/reset-token.schema';
+import { nanoid } from 'nanoid';
 
 @Module({
   imports: [
@@ -36,14 +35,7 @@ import { ResetToken, ResetTokenSchema } from './schemas/reset-token.schema';
     AuthService,
     AuthRepository,
     EncryptionService,
-    {
-      provide: ProviderKeys.UUIDV4,
-      useValue: v4,
-    },
-    {
-      provide: ProviderKeys.UUID,
-      useValue: randomUUID,
-    },
+    { provide: ProviderKeys.NANO_ID, useValue: nanoid },
   ],
   exports: [AuthService],
 })

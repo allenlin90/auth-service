@@ -1,5 +1,7 @@
-import { IsString, MinLength, IsUUID, Matches } from 'class-validator';
+import { IsString, MinLength, Matches } from 'class-validator';
 import { Match } from '../../decorators/match.decorator';
+import { IsPrefixedNanoID } from '../../decorators/prefixed-nanoid.decorator';
+import { Prefixes } from '../../constants';
 
 export class ResetPasswordDto {
   @IsString()
@@ -14,6 +16,6 @@ export class ResetPasswordDto {
   confirmPassword: string;
 
   @IsString()
-  @IsUUID()
+  @IsPrefixedNanoID(Prefixes.RESET)
   token: string;
 }

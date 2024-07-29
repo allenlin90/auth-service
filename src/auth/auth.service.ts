@@ -1,5 +1,4 @@
-import type { v4 } from 'uuid';
-import type { randomUUID } from 'crypto';
+import type { nanoid as nanoId } from 'nanoid';
 import {
   BadRequestException,
   Inject,
@@ -28,8 +27,7 @@ export class AuthService {
     private jwtService: JwtService,
     private authRepository: AuthRepository,
     private emailService: EmailService,
-    @Inject(ProviderKeys.UUID) private uuid: typeof randomUUID,
-    @Inject(ProviderKeys.UUIDV4) private uuidv4: typeof v4,
+    @Inject(ProviderKeys.NANO_ID) private nanoid: typeof nanoId,
   ) {}
 
   async signup(signupData: SignupDto) {
@@ -154,7 +152,7 @@ export class AuthService {
 
     const refreshToken = await this.authRepository.createRefreshToken({
       userId,
-      token: this.uuidv4(), // TODO: generate uuid with prefix for purpose
+      token: `refresh_${this.nanoid()}`, // TODO: generate uuid with prefix for purpose
       expiryDate,
     });
 
@@ -171,7 +169,7 @@ export class AuthService {
 
     return await this.authRepository.createResetToken({
       userId,
-      token: this.uuid(), // TODO: generate uuid with prefix for purpose
+      token: `reset_${this.nanoid()}`, // TODO: generate uuid with prefix for purpose
       expiryDate,
     });
   }
