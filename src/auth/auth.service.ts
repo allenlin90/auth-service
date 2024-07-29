@@ -152,7 +152,7 @@ export class AuthService {
 
     const refreshToken = await this.authRepository.createRefreshToken({
       userId,
-      token: `refresh_${this.nanoid()}`, // TODO: generate uuid with prefix for purpose
+      token: `refresh_${this.nanoid()}`,
       expiryDate,
     });
 
@@ -169,7 +169,7 @@ export class AuthService {
 
     return await this.authRepository.createResetToken({
       userId,
-      token: `reset_${this.nanoid()}`, // TODO: generate uuid with prefix for purpose
+      token: `reset_${this.nanoid()}`,
       expiryDate,
     });
   }
