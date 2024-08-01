@@ -20,6 +20,7 @@ $ yarn run start:prod
 ## Running depending services
 
 - MongoDB
+- Redis (BullMQ)
 - MailCatcher
 
 ## Test
@@ -41,7 +42,7 @@ $ yarn run test:cov
 
 ## Bull MQ
 
-- route: `/queues`
+- route: `/admin/queues`
 
 ## Authentication
 
@@ -66,4 +67,12 @@ $ yarn run test:cov
 
 ### Queues
 
-- A email sending job will be dispatched to BullMQ process.
+- A email sending job will be dispatched to BullMQ worker thread.
+
+## TODOs
+
+### BullMQ 
+- [ ] Implement auth guard for BullMQ board UI in production
+
+### Email service
+- [ ] Integrate with mailing services such as SendGrid or MailChimp
