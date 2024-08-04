@@ -4,7 +4,6 @@ import {
   type ExecutionContext,
   Injectable,
   NestInterceptor,
-  UseInterceptors,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { map, Observable } from 'rxjs';
