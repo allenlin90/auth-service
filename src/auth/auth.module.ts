@@ -1,8 +1,9 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { nanoid } from 'nanoid';
+import { forwardRef, MiddlewareConsumer, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProviderKeys } from '../constants';
 import { UsersModule } from '../users/users.module';
-import { EmailModule } from 'src/email/email.module';
+import { EmailModule } from '../email/email.module';
 
 import { EncryptionService } from './encryption.service';
 import { AuthService } from './auth.service';
@@ -13,7 +14,10 @@ import {
   RefreshTokenSchema,
 } from './schemas/refresh-token.schema';
 import { ResetToken, ResetTokenSchema } from './schemas/reset-token.schema';
-import { nanoid } from 'nanoid';
+import { GoogleOauthController } from './google-oauth/google-oauth.controller';
+import { GoogleStrategy } from './strategies/google.strategy';
+import { GoogleOAuthMiddleware } from '../middlewares/google-oauth.middleware';
+import { AppClientMiddleware } from '../middlewares/app-client.middleware';
 
 @Module({
   imports: [
@@ -30,13 +34,20 @@ import { nanoid } from 'nanoid';
     UsersModule,
     forwardRef(() => EmailModule),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, GoogleOauthController],
   providers: [
     AuthService,
     AuthRepository,
     EncryptionService,
     { provide: ProviderKeys.NANO_ID, useValue: nanoid },
+    GoogleStrategy,
   ],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AppClientMiddleware, GoogleOAuthMiddleware)
+      .forRoutes('auth/google/*');
+  }
+}

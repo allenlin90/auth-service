@@ -1,4 +1,5 @@
 import type { nanoid as nanoId } from 'nanoid';
+
 import {
   BadRequestException,
   Inject,
@@ -17,6 +18,7 @@ import { AuthRepository } from './auth.repository';
 import { SignupDto } from './dtos/signup.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { GoogleUser } from './google-oauth/google-user.interface';
 
 @Injectable()
 export class AuthService {
@@ -31,20 +33,7 @@ export class AuthService {
   ) {}
 
   async signup(signupData: SignupDto) {
-    const { email, password, name } = signupData;
-    const emailInUse = await this.usersService.findOne({ email });
-
-    if (emailInUse) {
-      throw new BadRequestException('email in use');
-    }
-
-    const hashedPassword = await this.hashPassword(password);
-
-    return await this.usersService.create({
-      name,
-      email,
-      password: hashedPassword,
-    });
+    return this.signupUser(signupData);
   }
 
   async login({ email, password }: { email: string; password: string }) {
@@ -54,14 +43,7 @@ export class AuthService {
       throw new BadRequestException('invalid credentials');
     }
 
-    const isMatch = await this.encryptionService.compare(
-      password,
-      user.password,
-    );
-
-    if (!isMatch) {
-      throw new BadRequestException('invalid credentials');
-    }
+    await this.validatePassword(password, user.password);
 
     return this.generateTokens(user.id);
   }
@@ -80,9 +62,10 @@ export class AuthService {
     return this.generateTokens(token.userId.toString());
   }
 
-  async changePassword(userId: string, passwords: ChangePasswordDto) {
-    const { oldPassword, newPassword } = passwords;
-
+  async changePassword(
+    userId: string,
+    { oldPassword, newPassword }: ChangePasswordDto,
+  ) {
     if (oldPassword === newPassword) {
       throw new BadRequestException("your new password can't be the same");
     }
@@ -90,24 +73,15 @@ export class AuthService {
     const user = await this.usersService.findOne({ _id: userId });
 
     if (!user) {
-      throw new BadRequestException('user not found');
+      throw new UnauthorizedException('user not found');
     }
 
-    const isMatch = await this.encryptionService.compare(
-      oldPassword,
-      user.password,
-    );
+    await this.validatePassword(oldPassword, user.password);
 
-    if (!isMatch) {
-      throw new BadRequestException('invalid password');
-    }
-
+    // update new password
     const hashedPassword = await this.hashPassword(newPassword);
-
-    await this.usersService.findOneAndUpdate(
-      { _id: user.id },
-      { $set: { password: hashedPassword } },
-    );
+    user.password = hashedPassword;
+    await user.save();
 
     return user;
   }
@@ -142,7 +116,7 @@ export class AuthService {
     return user;
   }
 
-  // to refresh the access token
+  // to generate a refresh token to issue an access token
   async generateRefreshToken(userId: string) {
     const expiryDate = new Date();
     const expiresIn = this.config.get<number>(
@@ -159,7 +133,7 @@ export class AuthService {
     return refreshToken;
   }
 
-  // to generate a for resetting password
+  // to generate a reset token to reset password
   async generateResetToken(userId: string) {
     const expiryDate = new Date();
     const expiresIn = this.config.get<number>(
@@ -174,6 +148,37 @@ export class AuthService {
     });
   }
 
+  async googleOAuthCallback(profile: GoogleUser, signup = false) {
+    if (signup) {
+      return this.googleOAuthSignup(profile);
+    }
+
+    return this.googleOAuthLogin(profile);
+  }
+
+  private async googleOAuthSignup({
+    id: googleId,
+    email,
+    firstName,
+    lastName,
+  }: GoogleUser) {
+    const name = `${firstName} ${lastName}`;
+
+    const password = await this.generateRandomPassword();
+
+    return this.signupUser({ email, name, password, googleId });
+  }
+
+  private async googleOAuthLogin(profile: GoogleUser) {
+    const user = await this.usersService.findOne({ googleId: profile.id });
+
+    if (!user) {
+      throw new UnauthorizedException('user not found');
+    }
+
+    return await this.generateTokens(user.id);
+  }
+
   private async generateTokens(userId: string) {
     const accessToken = this.jwtService.sign({ userId });
 
@@ -184,5 +189,42 @@ export class AuthService {
 
   private async hashPassword(password: string) {
     return this.encryptionService.hash(password, 10);
+  }
+
+  private async validatePassword(password: string, hashedPassword: string) {
+    const isMatch = await this.encryptionService.compare(
+      password,
+      hashedPassword,
+    );
+
+    if (!isMatch) {
+      throw new BadRequestException('invalid credentials');
+    }
+  }
+
+  private async generateRandomPassword() {
+    const randomBytes = this.encryptionService.generateRandomBytes();
+
+    const password = `A!@${randomBytes}`;
+
+    return this.encryptionService.hash(password, 10);
+  }
+
+  private async signupUser({ email, password, ...objectData }: SignupDto) {
+    const emailInUse = await this.usersService.findOne({ email });
+
+    if (emailInUse) {
+      throw new BadRequestException('user already exists');
+    }
+
+    const hashedPassword = await this.hashPassword(password);
+
+    const user = await this.usersService.create({
+      email,
+      password: hashedPassword,
+      ...objectData,
+    });
+
+    return this.generateTokens(user.id);
   }
 }

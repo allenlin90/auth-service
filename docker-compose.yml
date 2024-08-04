@@ -17,6 +17,15 @@ services:
     restart: always
     ports:
       - 6379:6379
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: ghcr.io/joeferner/redis-commander:latest
+    restart: always
+    environment:
+    - REDIS_HOSTS=local:redis_auth_service:6379
+    ports:
+    - "8081:8081"
   mailcatcher:
     image: schickling/mailcatcher
     container_name: mailcatcher_auth_service

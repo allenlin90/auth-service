@@ -1,6 +1,6 @@
 import {
-  NestInterceptor,
-  ExecutionContext,
+  type NestInterceptor,
+  type ExecutionContext,
   CallHandler,
   UseInterceptors,
 } from '@nestjs/common';

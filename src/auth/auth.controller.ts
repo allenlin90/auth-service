@@ -1,6 +1,4 @@
-import type { Request, Response } from 'express';
-import type { RefreshToken } from './schemas/refresh-token.schema';
-
+import type { Request } from 'express';
 import {
   Body,
   Controller,
@@ -8,12 +6,11 @@ import {
   Post,
   Put,
   Req,
-  Res,
   UnauthorizedException,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ConfigKeys } from '../config';
 import { AuthGuard } from '../guards/auth.guard';
 import { Serialize } from '../interceptors/serialize.interceptor';
 import { AuthService } from './auth.service';
@@ -23,50 +20,37 @@ import { UserDto } from '../users/dtos/user.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
 import { ForgetPasswordDto } from './dtos/forget-password.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { AuthTokensInterceptor } from '../interceptors/auth-tokens.interceptor';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private config: ConfigService,
+    protected readonly config: ConfigService,
   ) {}
 
-  @Serialize(UserDto)
+  @UseInterceptors(AuthTokensInterceptor)
   @Post('signup')
   async signup(@Body() signupData: SignupDto) {
     return this.authService.signup(signupData);
   }
 
+  @UseInterceptors(AuthTokensInterceptor)
   @Post('login')
-  async login(
-    @Body() credentials: LoginDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { accessToken, refreshToken } =
-      await this.authService.login(credentials);
-
-    this.setRefreshTokenCookie(res, refreshToken);
-
-    return { accessToken };
+  async login(@Body() credentials: LoginDto) {
+    return this.authService.login(credentials);
   }
 
+  @UseInterceptors(AuthTokensInterceptor)
   @Post('refresh')
-  async refresh(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { refreshToken: token } = req.cookies;
+  async refresh(@Req() req: Request) {
+    const { refreshToken } = req.cookies;
 
-    if (!token) {
+    if (!refreshToken) {
       new UnauthorizedException('invalid refresh token');
     }
 
-    const { accessToken, refreshToken } =
-      await this.authService.refreshToken(token);
-
-    this.setRefreshTokenCookie(res, refreshToken);
-
-    return { accessToken };
+    return this.authService.refreshToken(refreshToken);
   }
 
   @HttpCode(200)
@@ -87,14 +71,5 @@ export class AuthController {
   @Post('reset-password')
   async resetPassword(@Body() data: ResetPasswordDto) {
     return this.authService.resetPassword(data);
-  }
-
-  private setRefreshTokenCookie(res: Response, refreshToken: RefreshToken) {
-    res.cookie('refreshToken', refreshToken.token, {
-      httpOnly: true,
-      // sameSite: 'none', // required when client is on a different domain
-      expires: refreshToken.expiryDate,
-      secure: this.config.get(ConfigKeys.IS_PRODUCTION),
-    });
   }
 }

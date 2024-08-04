@@ -1,4 +1,10 @@
-import { IsEmail, IsString, Matches, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  Matches,
+  MinLength,
+} from 'class-validator';
 
 export class SignupDto {
   @IsString()
@@ -13,4 +19,8 @@ export class SignupDto {
     message: 'password must contain at least one number',
   })
   password: string;
+
+  @IsString()
+  @IsOptional()
+  googleId?: string;
 }

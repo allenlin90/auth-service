@@ -1,7 +1,8 @@
+import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 
 import { UsersRepository } from './users.repository';
-import { SignupDto } from '../auth/dtos/signup.dto';
+import { User } from './schemas/user.schema';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +16,7 @@ export class UsersService {
     return this.usersRepo.findOneAndUpdate(...args);
   }
 
-  create({ name, email, password }: SignupDto) {
-    return this.usersRepo.create({ name, email, password });
+  create(...args: ConstructorParameters<Model<User>>) {
+    return this.usersRepo.create(...args);
   }
 }

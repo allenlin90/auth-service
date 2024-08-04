@@ -11,8 +11,14 @@ export enum ConfigKeys {
   DB_NAME = 'database.name',
   REDIS_HOST = 'redis.host',
   REDIS_PORT = 'redis.port',
+  REDIS_PREFIX = 'redis.prefix',
+  REDIS_OPTIONS = 'redis.options',
+  REDIS_SESSION_STORE_OPTIONS = 'redis.sessionStore.options',
   EMAIL_SERVICE_OPTIONS = 'emailService.options',
   EMAIL_FROM = 'emailService.from',
+  GOOGLE_OAUTH_SETTINGS = 'googleOauth',
+  SESSION_SECRET = 'session.secret',
+  SESSION_COOKIE_OPTIONS = 'session.cookie.options',
 }
 
 export default () => {
@@ -48,10 +54,38 @@ export default () => {
     redis: {
       host: process.env.REDIS_HOST,
       port: parseInt(process.env.REDIS_PORT, 10),
+      options: {
+        url: process.env.REDIS_URL,
+      },
+      sessionStore: {
+        options: {
+          prefix: 'authservice:',
+          ttl: 15 * 60, // 15 minutes
+        },
+      },
     },
     emailService: {
       from: process.env.EMAIL_FROM,
       options: emailServiceOptions,
+    },
+    googleOauth: {
+      clientID: process.env.GOOGLE_OAUTH_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_OAUTH_CALLBACK_URL,
+      accessType: 'offline',
+      scope: ['email', 'profile'],
+      passReqToCallback: true,
+      state: true,
+    },
+    session: {
+      secret: process.env.SESSION_SECRET,
+      cookie: {
+        options: {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          maxAge: 15 * 60 * 1000, // 15 minutes
+        },
+      },
     },
   };
 };
