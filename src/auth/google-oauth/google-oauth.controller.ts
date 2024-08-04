@@ -12,7 +12,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { AuthService } from '../auth.service';
 import { GoogleOAuthGuard } from '../../guards/google-oauth.guard';
-import { GoogleUser } from './google-user.interface';
+import type { GoogleUserDto } from '../../users/dtos/google-user.dto';
 import { AuthTokensInterceptor } from '../../interceptors/auth-tokens.interceptor';
 
 @Controller('auth/google')
@@ -43,7 +43,7 @@ export class GoogleOauthController {
     }
 
     return this.authService.googleOAuthCallback(
-      req.user as GoogleUser,
+      req.user as GoogleUserDto,
       req.session.intent === 'signup',
     );
   }

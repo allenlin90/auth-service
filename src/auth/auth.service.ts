@@ -13,12 +13,12 @@ import { ConfigKeys } from '../config';
 import { ProviderKeys } from '../constants';
 import { UsersService } from '../users/users.service';
 import { EncryptionService } from './encryption.service';
-import { EmailService } from 'src/email/email.service';
+import { EmailService } from '../email/email.service';
 import { AuthRepository } from './auth.repository';
 import { SignupDto } from './dtos/signup.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
-import { GoogleUser } from './google-oauth/google-user.interface';
+import { GoogleUserDto } from '../users/dtos/google-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -148,7 +148,7 @@ export class AuthService {
     });
   }
 
-  async googleOAuthCallback(profile: GoogleUser, signup = false) {
+  async googleOAuthCallback(profile: GoogleUserDto, signup = false) {
     if (signup) {
       return this.googleOAuthSignup(profile);
     }
@@ -161,7 +161,7 @@ export class AuthService {
     email,
     firstName,
     lastName,
-  }: GoogleUser) {
+  }: GoogleUserDto) {
     const name = `${firstName} ${lastName}`;
 
     const password = await this.generateRandomPassword();
@@ -169,7 +169,7 @@ export class AuthService {
     return this.signupUser({ email, name, password, googleId });
   }
 
-  private async googleOAuthLogin(profile: GoogleUser) {
+  private async googleOAuthLogin(profile: GoogleUserDto) {
     const user = await this.usersService.findOne({ googleId: profile.id });
 
     if (!user) {
