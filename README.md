@@ -30,7 +30,8 @@ docker compose up -d
   - Local dev `redis://localhost:6379`
 
 ### Development
-- Redis commander (web-based GUI client for redis) `http://localhost:8081`
+- Redis commander (web-based GUI client for redis)
+  - Web UI `http://localhost:8081`
 - MailCatcher 
   - Web UI `http://localhost:1080`
   - SMTP server `smtp://localhost:1025`
@@ -109,7 +110,9 @@ $ yarn run test:cov
 ## TODOs (feature, refactoring, optimization)
 
 ### Admin features
-- [ ] Manage users
+- Manage users
+  - [ ] Users' profile
+  - [ ] Users' session
 - [ ] Manage app clients integrating auth service
 - [ ] APIs for admin dashboard
 - [ ] Web UI for `mongodb`
@@ -123,9 +126,13 @@ $ yarn run test:cov
   - [ ] Add auth guard for `BullMQ`
 
 ### Authentication
+- Integrate with MFA 
+  - [ ] email
+  - [ ] SMS
+  - [ ] Authenticator app
+  - [ ] Manage access and refresh token from `Google` OAuth
 - Integrate with `Google` OAuth
   - [x] `Google` OAuth sign-up and login flow
-  - [ ] Manage access and refresh token from `Google` OAuth
     - Current implementation doesn't store and re-use tokens from `Google`
 - [ ] PKCE flow for app clients without backend service
   - Native mobile app
@@ -134,9 +141,18 @@ $ yarn run test:cov
 - Credential management to isolate app clients
   - [ ] Sets of credentials for multiple app clients
   - Consider using `rsa` for JWT asymmetric encryption/decryption
+- Password-less authentication
+  - [ ] Magic link
 
 ### Email service
 - [ ] Integrate with production mailing services e.g. `SendGrid` or `MailChimp`
+
+### Features
+- User self-service
+  - [ ] Manage profile
+  - [ ] Delete a session of a device
+  - [ ] Logout from all devices
+- [ ] Audit log
 
 ### MongoDB
 - Cascade actions related collections in schema hooks
@@ -154,6 +170,7 @@ $ yarn run test:cov
 - Verify app client integrating with this auth service
   - [ ] White listing with `cors` settings, gateway, load balancer, or proxy
   - [ ] Mechanism to allow only registered/acknowledged apps to integrate with this auth service
+- [ ] Access token blacklisting
 
 ### Tests
 - [ ] Unit tests
